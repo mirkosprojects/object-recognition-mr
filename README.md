@@ -14,7 +14,6 @@ UnityProjectTemplate/
 │── .gitignore           # Defines files to be ignored in version control
 │── .gitattributes       # Ensures Git LFS handles large binary files correctly
 │── README.md            # Documentation for this template
-│── LICENSE              # License information for the project
 ```
 
 ## 📄 File Descriptions
@@ -63,19 +62,11 @@ Contains all game-related assets, including:
   ```
 - Prevents Git from bloating with large assets.
 
-### **7️⃣ README.md**
-- This file! 📜
-- Documents the project structure and how to use the template.
-
-### **8️⃣ LICENSE**
-- Defines licensing terms for the project.
-- Replace this file with an appropriate license (`MIT`, `Apache`, etc.) if needed.
-
 ## 🛠 How to Use This Template
 ### **1️⃣ Create a New Project From This Template**
 - Clone this repository and rename it:
   ```sh
-  git clone https://gitlab.com/unitylab/unity-project-template.git new-project
+  git clone https://git.it.hs-heilbronn.de/unitylab/templates/unity-project-template.git new-project
   cd new-project
   ```
 - Remove Git history to start fresh:
@@ -87,7 +78,7 @@ Contains all game-related assets, including:
   ```
 - Push to your new GitLab project:
   ```sh
-  git remote add origin https://gitlab.com/unitylab/new-project.git
+  git remote add origin https://git.it.hs-heilbronn.de/<Group>/new-project.git
   git push -u origin main
   ```
 
