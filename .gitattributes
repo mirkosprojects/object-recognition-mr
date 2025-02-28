@@ -1,0 +1,86 @@
+# Unity Scenes, Prefabs & Assets
+*.unity filter=lfs diff=lfs merge=lfs binary
+*.prefab filter=lfs diff=lfs merge=lfs binary
+*.asset filter=lfs diff=lfs merge=lfs
+
+# Textures & Images
+*.png filter=lfs diff=lfs merge=lfs binary
+*.jpg filter=lfs diff=lfs merge=lfs binary
+*.jpeg filter=lfs diff=lfs merge=lfs binary
+*.tga filter=lfs diff=lfs merge=lfs binary
+*.psd filter=lfs diff=lfs merge=lfs binary
+*.exr filter=lfs diff=lfs merge=lfs binary
+*.tiff filter=lfs diff=lfs merge=lfs binary
+*.bmp filter=lfs diff=lfs merge=lfs binary
+*.svg filter=lfs diff=lfs merge=lfs
+
+# Audio files
+*.wav filter=lfs diff=lfs merge=lfs binary
+*.mp3 filter=lfs diff=lfs merge=lfs binary
+*.ogg filter=lfs diff=lfs merge=lfs binary
+*.flac filter=lfs diff=lfs merge=lfs binary
+*.aiff filter=lfs diff=lfs merge=lfs binary
+*.aac filter=lfs diff=lfs merge=lfs binary
+
+# Video files
+*.mp4 filter=lfs diff=lfs merge=lfs binary
+*.mov filter=lfs diff=lfs merge=lfs binary
+*.avi filter=lfs diff=lfs merge=lfs binary
+*.webm filter=lfs diff=lfs merge=lfs binary
+*.mkv filter=lfs diff=lfs merge=lfs binary
+
+# 3D-Models & Meshes
+*.fbx filter=lfs diff=lfs merge=lfs binary
+*.obj filter=lfs diff=lfs merge=lfs binary
+*.blend filter=lfs diff=lfs merge=lfs binary
+*.dae filter=lfs diff=lfs merge=lfs binary
+*.stl filter=lfs diff=lfs merge=lfs binary
+
+# Animations & Motion-Capture files
+*.anim filter=lfs diff=lfs merge=lfs
+*.controller filter=lfs diff=lfs merge=lfs
+*.overrideController filter=lfs diff=lfs merge=lfs
+*.rig filter=lfs diff=lfs merge=lfs
+
+# Physics und Simulation files
+*.physicMaterial filter=lfs diff=lfs merge=lfs
+*.physicMaterial2D filter=lfs diff=lfs merge=lfs
+*.particleSystem filter=lfs diff=lfs merge=lfs
+
+# Unity Timeline & Cinemachine
+*.playable filter=lfs diff=lfs merge=lfs
+*.signal filter=lfs diff=lfs merge=lfs
+
+# Packages & Plugins
+*.unitypackage filter=lfs diff=lfs merge=lfs binary
+*.dll filter=lfs diff=lfs merge=lfs binary
+*.so filter=lfs diff=lfs merge=lfs binary
+*.a filter=lfs diff=lfs merge=lfs binary
+*.lib filter=lfs diff=lfs merge=lfs binary
+*.jar filter=lfs diff=lfs merge=lfs binary
+*.aar filter=lfs diff=lfs merge=lfs binary
+
+# VR & AR files
+*.depth filter=lfs diff=lfs merge=lfs
+*.xr filter=lfs diff=lfs merge=lfs
+*.matcap filter=lfs diff=lfs merge=lfs
+
+# Shader variants & compiled shaders (can be large)
+*.shadervariants filter=lfs diff=lfs merge=lfs
+*.shadergraph filter=lfs diff=lfs merge=lfs
+
+# Shader Files (Raw & Compiled)
+*.shader text eol=lf
+*.compute text eol=lf
+*.cginc text eol=lf
+*.hlsl text eol=lf
+*.glsl text eol=lf
+
+# Force LF for Unity-specific text files (cross-platform compatibility) - So it doesn't has to convert between LF and CRLF
+*.cs text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.xml text eol=lf
+*.txt text eol=lf
+*.meta text eol=lf
+*.gitattributes text eol=lf
