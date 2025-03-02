@@ -165,9 +165,9 @@
 **/*_p.c
 **/*_h.h
 **/*.ilk
-**/*.meta
-**/*.obj
-**/*.iobj
+# **/*.meta
+# **/*.obj
+# **/*.iobj
 **/*.pch
 **/*.ipdb
 **/*.pgc
