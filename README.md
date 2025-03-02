@@ -63,7 +63,14 @@ Contains all game-related assets, including:
 - Prevents Git from bloating with large assets.
 
 ## 🛠 How to Use This Template
-### **1️⃣ Create a New Project From This Template**
+### **1️⃣ Prerequisites
+- Make sure that Git LFS is installed on your machine
+- You can check it by using:
+  ```sh
+  git lfs version
+  ```
+  
+### **2️⃣ Create a New Project From This Template**
 - Clone this repository and rename it:
   ```sh
   git clone https://git.it.hs-heilbronn.de/unitylab/templates/unity-project-template.git new-project
@@ -82,7 +89,7 @@ Contains all game-related assets, including:
   git push -u origin main
   ```
 
-### **2️⃣ Forking Option (Alternative)**
+### **3️⃣ Forking Option (Alternative)**
 - If cloning is not an option, simply **fork** this repository into your own project.
 
 ## ✅ Best Practices
