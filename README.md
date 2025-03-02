@@ -63,7 +63,7 @@ Contains all game-related assets, including:
 - Prevents Git from bloating with large assets.
 
 ## 🛠 How to Use This Template
-### **1️⃣ Prerequisites
+### **1️⃣ Prerequisites**
 - Make sure that Git LFS is installed on your machine
 - You can check it by using:
   ```sh
@@ -83,6 +83,12 @@ Contains all game-related assets, including:
   git add .
   git commit -m "Initialize new Unity project"
   ```
+- Open Unity Hub and click on "New project" to create a blank Unity project.
+
+- Choose this repository folder as location for the Unity project.
+
+- Click on "Create project".
+
 - Push to your new GitLab project:
   ```sh
   git remote add origin https://git.it.hs-heilbronn.de/<Group>/new-project.git
