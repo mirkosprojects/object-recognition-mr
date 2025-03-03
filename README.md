@@ -76,23 +76,34 @@ Contains all game-related assets, including:
   git clone https://git.it.hs-heilbronn.de/unitylab/templates/unity-project-template.git new-project
   cd new-project
   ```
-- Remove Git history to start fresh:
-  ```sh
-  rm -rf .git
-  git init
-  git add .
-  git commit -m "Initialize new Unity project"
-  ```
+
 - Open Unity Hub and click on "New project" to create a blank Unity project.
 
 - Choose this repository folder as location for the Unity project.
 
 - Click on "Create project".
 
-- Push to your new GitLab project:
+- After the new Unity project has been created, open a CLI in the root directory of the Git repository
+
+- Remove Git history to start fresh (optional):
+  ```sh
+  rm -rf .git
+  git init
+  git add .
+  git commit -m "Initialize new Unity project"
+  ```
+
+- If you removed the Git history in the previous (optional) step, use:
   ```sh
   git remote add origin https://git.it.hs-heilbronn.de/<Group>/new-project.git
   git push -u origin main
+  ```
+
+- If you have not removed the Git history, use:
+  ```sh
+  git add .
+  git commit -m "Initialize new Unity project"
+  git push
   ```
 
 ### **3️⃣ Forking Option (Alternative)**
