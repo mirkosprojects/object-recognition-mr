@@ -6,14 +6,16 @@ Welcome to the **Unity Project Template**! 🎮 This repository serves as a base
 This template follows a typical Unity project layout with additional files for Git and version control management.
 
 ```
-UnityProjectTemplate/
-│── Assets/              # All game assets, scripts, prefabs, and scenes
-│── Packages/            # Unity package dependencies
-│── ProjectSettings/     # Unity project settings (important for version control)
-│── UserSettings/        # Local user settings (ignored in Git)
+UnityProjectTemplate/    # The root directory of this repository
 │── .gitignore           # Defines files to be ignored in version control
 │── .gitattributes       # Ensures Git LFS handles large binary files correctly
 │── README.md            # Documentation for this template
+│── <UnityProjectName>/  # Directory of the Unity project
+  │── Assets/              # All game assets, scripts, prefabs, and scenes
+  │── Packages/            # Unity package dependencies
+  │── ProjectSettings/     # Unity project settings (important for version control)
+  │── UserSettings/        # Local user settings (ignored in Git)
+
 ```
 
 ## 📄 File Descriptions
@@ -87,7 +89,7 @@ Contains all game-related assets, including:
 
 - Remove Git history to start fresh (optional):
   ```sh
-  rm -rf .git
+  rm -rf .git    # Works only on Linux - on Windows delete the .git folder in the root directory of the repository
   git init
   git add .
   git commit -m "Initialize new Unity project"
