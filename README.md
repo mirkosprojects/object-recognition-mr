@@ -89,7 +89,7 @@ Contains all game-related assets, including:
 
 - Remove Git history to start fresh (optional):
   ```sh
-  rm -rf .git    # Works only on Linux - on Windows delete the .git folder in the root directory of the repository
+  rm -rf .git    # Works only on Linux - on Windows delete the .git folder in the root directory of the repository.
   git init
   git add .
   git commit -m "Initialize new Unity project"
