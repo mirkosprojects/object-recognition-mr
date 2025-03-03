@@ -14,7 +14,7 @@
 **/[Uu]ser[Ss]ettings/
 
 # Ignore mono crash dumps
-mono_crash.*.json
+**/mono_crash.*.json
 
 # Ignore PlasticSCM meta files - because this is versioning with git and they are not needed here
 **/.plastic
