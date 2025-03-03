@@ -162,7 +162,7 @@
 # .NET Core
 **/project.lock.json
 **/project.fragment.lock.json
-**/artifacts/
+**/[Aa]rtifacts/
 
 # ASP.NET Scaffolding
 **/ScaffoldingReadMe.txt
@@ -288,7 +288,7 @@
 # NuGet Packages
 **/*.nupkg
 **/*.snupkg
-**/[Pp]ackages/*
+# **/[Pp]ackages/*      # Also excludes the unity packages folder, so it should be commented out
 !**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/[Pp]ackages/repositories.config
