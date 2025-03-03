@@ -18,6 +18,10 @@
 
 # Ignore PlasticSCM meta files - because this is versioning with git and they are not needed here
 **/.plastic
+**/ignore.conf
+
+# Ignore vr specific manifest file because path may vary between users
+**/unityProject.vrmanifest
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
