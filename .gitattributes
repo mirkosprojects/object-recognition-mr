@@ -1,6 +1,6 @@
 # Unity Scenes, Prefabs & Assets
 *.unity filter=lfs diff=lfs merge=lfs binary
-*.prefab filter=lfs diff=lfs merge=lfs binary
+# *.prefab filter=lfs diff=lfs merge=lfs binary
 *.asset filter=lfs diff=lfs merge=lfs
 
 # Textures & Images
@@ -13,6 +13,7 @@
 *.tiff filter=lfs diff=lfs merge=lfs binary
 *.bmp filter=lfs diff=lfs merge=lfs binary
 *.svg filter=lfs diff=lfs merge=lfs
+*.hdr filter=lfs diff=lfs merge=lfs binary
 
 # Audio files
 *.wav filter=lfs diff=lfs merge=lfs binary
@@ -35,6 +36,7 @@
 *.blend filter=lfs diff=lfs merge=lfs binary
 *.dae filter=lfs diff=lfs merge=lfs binary
 *.stl filter=lfs diff=lfs merge=lfs binary
+*.cubemap filter=lfs diff=lfs merge=lfs binary
 
 # Animations & Motion-Capture files
 *.anim filter=lfs diff=lfs merge=lfs
@@ -65,6 +67,9 @@
 *.xr filter=lfs diff=lfs merge=lfs
 *.matcap filter=lfs diff=lfs merge=lfs
 
+#Documents
+*.pdf filter=lfs diff=lfs merge=lfs binary
+
 # Shader variants & compiled shaders (can be large)
 *.shadervariants filter=lfs diff=lfs merge=lfs
 *.shadergraph filter=lfs diff=lfs merge=lfs
@@ -84,3 +89,10 @@
 *.txt text eol=lf
 *.meta text eol=lf
 *.gitattributes text eol=lf
+
+#---Other or unknown endings---
+#Noise?
+*.bytes filter=lfs diff=lfs merge=lfs binary
+#PointClouds
+*.ptx filter=lfs diff=lfs merge=lfs binary
+
