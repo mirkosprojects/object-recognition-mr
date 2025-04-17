@@ -96,3 +96,5 @@
 #PointClouds
 *.ptx filter=lfs diff=lfs merge=lfs binary
 
+# Model Files
+*.onnx filter=lfs diff=lfs merge=lfs -text

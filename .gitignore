@@ -482,3 +482,7 @@
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,visualstudio,visualstudiocode
+
+# MacOS specific files
+.DS_Store
+Desktop.ini
