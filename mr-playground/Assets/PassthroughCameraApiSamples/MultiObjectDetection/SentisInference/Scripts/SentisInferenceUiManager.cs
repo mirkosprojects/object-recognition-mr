@@ -127,7 +127,18 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 var centerPixel = new Vector2Int(Mathf.RoundToInt(perX * camRes.x), Mathf.RoundToInt((1.0f - perY) * camRes.y));
                 var ray = PassthroughCameraUtils.ScreenPointToRayInWorld(CameraEye, centerPixel);
                 var worldPos = m_environmentRaycast.PlaceGameObjectByScreenPos(ray);
+                
 
+                // Debug Logging
+                Debug.LogError(worldPos);
+
+                if (worldPos == null){
+                    Debug.LogWarning($"Raycast failed at pixel {centerPixel}");
+                    Debug.DrawRay(ray.origin, ray.direction*2.0f, Color.red, 2f);
+                }
+                else {
+                    Debug.DrawRay(ray.origin, ray.direction*Vector3.Distance(ray.origin, worldPos.Value), Color.green, 2f);
+                }
                 // Create a new bounding box
                 var box = new BoundingBox
                 {
