@@ -37,18 +37,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [Header("Return Coordinates")]
         public Vector3[] DetectedBoxes;
 
-        //bounding box data
-        public struct BoundingBox
-        {
-            public float CenterX;
-            public float CenterY;
-            public float Width;
-            public float Height;
-            public string Label;
-            public Vector3? WorldPos;
-            public string ClassName;
-        }
-
         #region Unity Functions
         private void Start()
         {
@@ -239,5 +227,16 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             return panel;
         }
         #endregion
+    }
+    //bounding box data
+    public struct BoundingBox
+    {
+        public float CenterX;
+        public float CenterY;
+        public float Width;
+        public float Height;
+        public string Label;
+        public Vector3? WorldPos;
+        public string ClassName;
     }
 }

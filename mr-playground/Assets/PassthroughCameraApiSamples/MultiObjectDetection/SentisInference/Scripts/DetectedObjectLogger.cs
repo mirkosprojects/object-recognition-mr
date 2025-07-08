@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace PassthroughCameraSamples.MultiObjectDetection
 {
@@ -7,17 +8,13 @@ namespace PassthroughCameraSamples.MultiObjectDetection
     
         [SerializeField] private SentisInferenceUiManager inferenceUiManager;
 
-        private Vector3[] DetectedObjects => inferenceUiManager?.DetectedBoxes;
+        private List<BoundingBox> BoxDrawn => inferenceUiManager?.BoxDrawn;
 
         // Update is called once per frame
         void Update()
         {
-            if (DetectedObjects == null) {
-                return;
-            }
-
-            for (int i = 0; i < DetectedObjects.Length; i++) {
-                Debug.Log($"Detected Object {i} - World Position: {DetectedObjects[i]}");
+            foreach (var box in BoxDrawn) {
+                Debug.Log($"Detcted Object {box.ClassName} at: {box.WorldPos}");
             }
         }
     }
