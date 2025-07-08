@@ -26,7 +26,7 @@ public class HandPositionLogger : MonoBehaviour
 
     public void Log()
     {
-        Debug.LogError($"Hand Position Detected at: {currentPose.position}");
+        Debug.Log($"Hand Position Detected at: {currentPose.position}");
     }
 }
 

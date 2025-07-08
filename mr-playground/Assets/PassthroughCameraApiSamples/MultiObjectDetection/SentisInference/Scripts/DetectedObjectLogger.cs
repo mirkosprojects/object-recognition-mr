@@ -17,12 +17,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             }
 
             for (int i = 0; i < DetectedObjects.Length; i++) {
-                Debug.Log($"Detected Object {i} - World Position 1: {DetectedObjects[i]}");
-            }
-
-            foreach (var boxPos in DetectedObjects) 
-            {
-                Debug.Log($"Detected Object - World Position 2: {boxPos}");
+                Debug.Log($"Detected Object {i} - World Position: {DetectedObjects[i]}");
             }
         }
     }

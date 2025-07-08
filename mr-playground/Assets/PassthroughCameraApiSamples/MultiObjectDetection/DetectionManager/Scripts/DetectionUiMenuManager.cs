@@ -122,7 +122,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private void UpdateLabelInformation()
         {
             m_labelInfromation.text = $"Unity Sentis version: 2.1.1\nAI model: Yolo\nDetecting objects: {m_objectsDetected}\nObjects identified: {m_objectsIdentified}";
-            Debug.LogError("Testing Log message");
         }
 
         public void OnObjectsDetected(int objects)

@@ -130,8 +130,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 
 
                 // Debug Logging
-                Debug.LogError(worldPos);
-
                 if (worldPos == null){
                     Debug.LogWarning($"Raycast failed at pixel {centerPixel}");
                     Debug.DrawRay(ray.origin, ray.direction*2.0f, Color.red, 2f);
