@@ -34,9 +34,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private List<GameObject> m_boxPool = new();
         private Transform m_displayLocation;
 
-        [Header("Return Coordinates")]
-        public Vector3[] DetectedBoxes;
-
         #region Unity Functions
         private void Start()
         {
@@ -142,12 +139,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
                 // Draw 2D box
                 DrawBox(box, n);
-            }
-
-            // Add to output
-            DetectedBoxes = new Vector3[maxBoxes];
-            for (int i = 0; i < maxBoxes; i++) {
-                DetectedBoxes[i] = BoxDrawn[i].WorldPos ?? Vector3.zero;
             }
         }
 
