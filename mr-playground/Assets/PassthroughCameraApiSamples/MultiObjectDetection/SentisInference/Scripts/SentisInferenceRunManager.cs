@@ -22,6 +22,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [Header("UI display references")]
         [SerializeField] private SentisInferenceUiManager m_uiInference;
 
+        [Header("Object Tracking")]
+        [SerializeField] private ObjectTrackerManager m_tracker;
+
         [Header("[Editor Only] Convert to Sentis")]
         public ModelAsset OnnxModel;
         [SerializeField, Range(0, 1)] private float m_iouThreshold = 0.6f;
@@ -47,6 +50,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             yield return new WaitForSeconds(0.05f);
 
             m_uiInference.SetLabels(m_labelsAsset);
+            m_tracker.SetLabels(m_labelsAsset);
             LoadModel();
         }
 
@@ -81,6 +85,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 }
                 // Update Capture data
                 m_uiInference.SetDetectionCapture(targetTexture);
+                m_tracker.SetDetectionCapture(targetTexture);
                 // Convert the texture to a Tensor and schedule the inference
                 m_input = TextureConverter.ToTensor(targetTexture, m_inputSize.x, m_inputSize.y, 3);
                 m_schedule = m_engine.ScheduleIterable(m_input);
@@ -228,6 +233,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     break;
                 case 3:
                     m_uiInference.DrawUIBoxes(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
+                    m_tracker.UpdateTrackedObjects(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
                     m_download_state = 5;
                     break;
                 case 4:

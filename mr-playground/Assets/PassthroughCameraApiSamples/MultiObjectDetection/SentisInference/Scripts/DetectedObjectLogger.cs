@@ -5,12 +5,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 {
     public class DetectedObjectLogger : MonoBehaviour
     {
-
-        [SerializeField] private SentisInferenceUiManager inferenceUiManager;
-
-        private List<BoundingBox> BoxDrawn => inferenceUiManager?.BoxDrawn;
-
-        public ObjectTrackerManager tracker;
+        [SerializeField] private ObjectTrackerManager tracker;
 
         // Update is called once per frame
         void Update()
@@ -21,7 +16,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             //     Debug.Log($"Detcted Object {box.ClassName} at: {box.WorldPos}");
             // }
 
-            tracker.UpdateTrackedObjects(BoxDrawn);
+            // tracker.UpdateTrackedObjects(BoxDrawn);
 
             // Draw line from camera
             foreach (var obj in tracker.GetTrackedObjects())
