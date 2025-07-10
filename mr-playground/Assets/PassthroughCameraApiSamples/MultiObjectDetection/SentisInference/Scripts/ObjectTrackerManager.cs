@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace PassthroughCameraSamples.MultiObjectDetection
 {
-    
+
     public class ObjectTrackerManager : MonoBehaviour
     {
         [Header("Tracking Settings")]
@@ -25,13 +25,20 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private EnvironmentRayCastSampleManager m_environmentRaycast;
         [SerializeField] private WebCamTextureManager m_webCamTextureManager;
         private PassthroughCameraEye CameraEye => m_webCamTextureManager.Eye;
+        private Vector2Int camRes;
 
         [Header("UI display references")]
         [SerializeField] private RawImage m_displayImage;
 
         private string[] m_labels;
 
-        #region BoundingBoxes functions
+        private void Start()
+        {
+            //Get the camera intrinsics
+            var intrinsics = PassthroughCameraUtils.GetCameraIntrinsics(CameraEye);
+            camRes = intrinsics.Resolution;
+        }
+
         public void SetLabels(TextAsset labelsAsset)
         {
             //Parse neural net m_labels
@@ -43,7 +50,23 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             m_displayImage.texture = image;
         }
 
-        private List<BoundingBox> GetBoxes(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
+        private Vector3? GetWorldPos(float outputX, float outputY, float scaleX, float scaleY, float displayWidth, float displayHeight)
+        {
+            // Get bounding box center coordinates
+            var halfWidth = displayWidth / 2;
+            var halfHeight = displayHeight / 2;
+            var centerX = outputX * scaleX - halfWidth;
+            var centerY = outputY * scaleY - halfHeight;
+            var perX = (centerX + halfWidth) / displayWidth;
+            var perY = (centerY + halfHeight) / displayHeight;
+
+            // Get the 3D marker world position using Depth Raycast
+            var centerPixel = new Vector2Int(Mathf.RoundToInt(perX * camRes.x), Mathf.RoundToInt((1.0f - perY) * camRes.y));
+            var ray = PassthroughCameraUtils.ScreenPointToRayInWorld(CameraEye, centerPixel);
+            return m_environmentRaycast.PlaceGameObjectByScreenPos(ray);
+        }
+
+        private List<Detections> GetDetections(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
         {
             var displayWidth = m_displayImage.rectTransform.rect.width;
             var displayHeight = m_displayImage.rectTransform.rect.height;
@@ -51,62 +74,31 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             var scaleX = displayWidth / imageWidth;
             var scaleY = displayHeight / imageHeight;
 
-            var halfWidth = displayWidth / 2;
-            var halfHeight = displayHeight / 2;
-
-            var boxesFound = output.shape[0];
-            var maxBoxes = Mathf.Min(boxesFound, 200);
-
-            //Get the camera intrinsics
-            var intrinsics = PassthroughCameraUtils.GetCameraIntrinsics(CameraEye);
-            var camRes = intrinsics.Resolution;
+            var detectionsFound = output.shape[0];
+            var maxDetections = Mathf.Min(detectionsFound, 200);
 
             //Get a list of bounding boxes
-            List<BoundingBox> Boxes = new(maxBoxes);
-            for (var n = 0; n < maxBoxes; n++)
+            List<Detections> Detections = new(maxDetections);
+            for (var n = 0; n < maxDetections; n++)
             {
-                // Get bounding box center coordinates
-                var centerX = output[n, 0] * scaleX - halfWidth;
-                var centerY = output[n, 1] * scaleY - halfHeight;
-                var perX = (centerX + halfWidth) / displayWidth;
-                var perY = (centerY + halfHeight) / displayHeight;
+                var worldPos = GetWorldPos(output[n, 0], output[n, 1], scaleX, scaleY, displayWidth, displayHeight);
 
-                // Get object class name
-                var classname = m_labels[labelIDs[n]].Replace(" ", "_");
-
-                // Get the 3D marker world position using Depth Raycast
-                var centerPixel = new Vector2Int(Mathf.RoundToInt(perX * camRes.x), Mathf.RoundToInt((1.0f - perY) * camRes.y));
-                var ray = PassthroughCameraUtils.ScreenPointToRayInWorld(CameraEye, centerPixel);
-                var worldPos = m_environmentRaycast.PlaceGameObjectByScreenPos(ray);
-
-
-                // Debug Logging
-                if (worldPos == null)
-                {
-                    Debug.LogWarning($"Raycast failed at pixel {centerPixel}");
-                }
                 // Create a new bounding box
-                var box = new BoundingBox
+                var Detection = new Detections
                 {
-                    CenterX = centerX,
-                    CenterY = centerY,
-                    ClassName = classname,
-                    Width = output[n, 2] * scaleX,
-                    Height = output[n, 3] * scaleY,
-                    Label = $"Id: {n} Class: {classname} Center (px): {(int)centerX},{(int)centerY} Center (%): {perX:0.00},{perY:0.00}, WorldPos: {worldPos}",
+                    ClassName = m_labels[labelIDs[n]].Replace(" ", "_"),
                     WorldPos = worldPos,
                 };
 
                 // Add to the list of boxes
-                Boxes.Add(box);
+                Detections.Add(Detection);
             }
-            return Boxes;
+            return Detections;
         }
-        #endregion
 
         public void UpdateTrackedObjects(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
         {
-            var detections = GetBoxes(output, labelIDs, imageWidth, imageHeight);
+            var detections = GetDetections(output, labelIDs, imageWidth, imageHeight);
             // Keep track of which detections matched existing objects
             HashSet<int> matchedDetections = new();
 
@@ -161,7 +153,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             });
         }
 
-        private bool IsMatching(TrackedObject tracked, BoundingBox detected)
+        private bool IsMatching(TrackedObject tracked, Detections detected)
         {
             if (tracked.ClassName != detected.ClassName) return false;
             float dist = Vector3.Distance(tracked.WorldPos, detected.WorldPos.Value);
@@ -173,4 +165,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             return trackedObjects;
         }
     }   
+    public struct Detections
+    {
+        public Vector3? WorldPos;
+        public string ClassName;
+    }
 }
