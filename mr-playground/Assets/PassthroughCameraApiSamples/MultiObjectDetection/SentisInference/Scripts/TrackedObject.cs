@@ -9,6 +9,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         public int FramesSinceLastSeen;
         public int FramesSeen;
         public GameObject Marker;
+        private DetectionSpawnMarkerAnim MarkerAnim;
 
         public TrackedObject(string className, Vector3 worldPos, GameObject markerPrefab, Transform parent)
         {
@@ -18,11 +19,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             FramesSeen = 1;
 
             Marker = GameObject.Instantiate(markerPrefab, worldPos, Quaternion.identity, parent);
-            var anim = Marker.GetComponent<DetectionSpawnMarkerAnim>();
-            if (anim != null)
-            {
-                anim.SetYoloClassName(ClassName);
-            }
+            MarkerAnim = Marker.GetComponent<DetectionSpawnMarkerAnim>();
 
             Marker.SetActive(true);
             UpdateMarker();
@@ -53,7 +50,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             if (Marker != null)
             {
                 Marker.transform.position = WorldPos;
-                Marker.name = $"Tracked {ClassName}";
+                // Marker.name = $"Tracked {ClassName}";
+            }
+
+            if (MarkerAnim != null)
+            {
+                MarkerAnim.SetYoloClassName(ClassName);
             }
         }
     }

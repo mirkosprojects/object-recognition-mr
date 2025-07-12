@@ -27,9 +27,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private PassthroughCameraEye CameraEye => m_webCamTextureManager.Eye;
         private Vector2Int camRes;
 
-        [Header("UI display references")]
-        [SerializeField] private RawImage m_displayImage;
-
         private string[] m_labels;
 
         private void Start()
@@ -45,21 +42,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             m_labels = labelsAsset.text.Split('\n');
         }
 
-        public void SetDetectionCapture(Texture image)
+        private Vector3? GetWorldPos(float perX, float perY)
         {
-            m_displayImage.texture = image;
-        }
-
-        private Vector3? GetWorldPos(float outputX, float outputY, float scaleX, float scaleY, float displayWidth, float displayHeight)
-        {
-            // Get bounding box center coordinates
-            var halfWidth = displayWidth / 2;
-            var halfHeight = displayHeight / 2;
-            var centerX = outputX * scaleX - halfWidth;
-            var centerY = outputY * scaleY - halfHeight;
-            var perX = (centerX + halfWidth) / displayWidth;
-            var perY = (centerY + halfHeight) / displayHeight;
-
             // Get the 3D marker world position using Depth Raycast
             var centerPixel = new Vector2Int(Mathf.RoundToInt(perX * camRes.x), Mathf.RoundToInt((1.0f - perY) * camRes.y));
             var ray = PassthroughCameraUtils.ScreenPointToRayInWorld(CameraEye, centerPixel);
@@ -68,12 +52,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         private List<Detections> GetDetections(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
         {
-            var displayWidth = m_displayImage.rectTransform.rect.width;
-            var displayHeight = m_displayImage.rectTransform.rect.height;
-
-            var scaleX = displayWidth / imageWidth;
-            var scaleY = displayHeight / imageHeight;
-
             var detectionsFound = output.shape[0];
             var maxDetections = Mathf.Min(detectionsFound, 200);
 
@@ -81,7 +59,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             List<Detections> Detections = new(maxDetections);
             for (var n = 0; n < maxDetections; n++)
             {
-                var worldPos = GetWorldPos(output[n, 0], output[n, 1], scaleX, scaleY, displayWidth, displayHeight);
+                var worldPos = GetWorldPos(output[n, 0] / imageWidth, output[n, 1] / imageHeight);
 
                 // Create a new bounding box
                 var Detection = new Detections

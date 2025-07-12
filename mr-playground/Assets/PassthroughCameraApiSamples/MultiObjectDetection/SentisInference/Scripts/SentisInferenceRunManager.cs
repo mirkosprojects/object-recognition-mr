@@ -85,7 +85,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 }
                 // Update Capture data
                 m_uiInference.SetDetectionCapture(targetTexture);
-                m_tracker.SetDetectionCapture(targetTexture);
                 // Convert the texture to a Tensor and schedule the inference
                 m_input = TextureConverter.ToTensor(targetTexture, m_inputSize.x, m_inputSize.y, 3);
                 m_schedule = m_engine.ScheduleIterable(m_input);
