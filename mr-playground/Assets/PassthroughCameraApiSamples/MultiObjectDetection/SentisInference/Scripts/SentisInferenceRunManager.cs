@@ -16,6 +16,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private BackendType m_backend = BackendType.CPU;
         [SerializeField] private ModelAsset m_sentisModel;
         [SerializeField] private int m_layersPerFrame = 25;
+        private float m_lastInferenceTime;
+        [SerializeField] private float m_inferenceInterval = 0.2f;
         [SerializeField] private TextAsset m_labelsAsset;
         public bool IsModelLoaded { get; private set; } = false;
 
@@ -36,7 +38,18 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private bool m_started = false;
         private Tensor<float> m_input;
         private Model m_model;
-        private int m_download_state = 0;
+        private state m_download_state = state.INFERENCE_READY;
+        private enum state
+        {
+            INFERENCE_READY,
+            INFERENCE_DONE,
+            OUTPUT_READY,
+            LABELID_READY,
+            ERROR,
+            FINISHED,
+            WAITING
+
+        }
         private Tensor<float> m_output;
         private Tensor<int> m_labelIDs;
         private Tensor<float> m_pullOutput;
@@ -88,7 +101,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 // Convert the texture to a Tensor and schedule the inference
                 m_input = TextureConverter.ToTensor(targetTexture, m_inputSize.x, m_inputSize.y, 3);
                 m_schedule = m_engine.ScheduleIterable(m_input);
-                m_download_state = 0;
+                m_download_state = state.INFERENCE_READY;
                 m_started = true;
             }
         }
@@ -120,7 +133,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 try
                 {
-                    if (m_download_state == 0)
+                    if (m_download_state == state.INFERENCE_READY)
                     {
                         var it = 0;
                         while (m_schedule.MoveNext())
@@ -128,7 +141,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                             if (++it % m_layersPerFrame == 0)
                                 return;
                         }
-                        m_download_state = 1;
+                        m_download_state = state.INFERENCE_DONE;
                     }
                     else
                     {
@@ -155,7 +168,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             else
             {
                 Debug.LogError("Sentis: No data output m_output");
-                m_download_state = 4;
+                m_download_state = state.ERROR;
             }
         }
 
@@ -171,7 +184,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             else
             {
                 Debug.LogError("Sentis: No data output m_labelIDs");
-                m_download_state = 4;
+                m_download_state = state.ERROR;
             }
         }
 
@@ -180,67 +193,63 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             // Get the different outputs in diferent frames to not block the main thread.
             switch (m_download_state)
             {
-                case 1:
+                case state.INFERENCE_DONE:
                     if (!m_isWaiting)
                     {
                         PollRequestOuput();
                     }
-                    else
+                    else if (m_pullOutput.IsReadbackRequestDone())
                     {
-                        if (m_pullOutput.IsReadbackRequestDone())
-                        {
-                            m_output = m_pullOutput.ReadbackAndClone();
-                            m_isWaiting = false;
+                        m_output = m_pullOutput.ReadbackAndClone();
+                        m_pullOutput?.Dispose();
+                        m_isWaiting = false;
 
-                            if (m_output.shape[0] > 0)
-                            {
-                                Debug.Log("Sentis: m_output ready");
-                                m_download_state = 2;
-                            }
-                            else
-                            {
-                                Debug.LogError("Sentis: m_output empty");
-                                m_download_state = 4;
-                            }
+                        if (m_output.shape[0] > 0)
+                        {
+                            Debug.Log("Sentis: m_output ready");
+                            m_download_state = state.OUTPUT_READY;
+                        }
+                        else
+                        {
+                            Debug.LogError("Sentis: m_output empty");
+                            m_download_state = state.ERROR;
                         }
                     }
                     break;
-                case 2:
+                case state.OUTPUT_READY:
                     if (!m_isWaiting)
                     {
                         PollRequestLabelIDs();
                     }
-                    else
+                    else if (m_pullLabelIDs.IsReadbackRequestDone())
                     {
-                        if (m_pullLabelIDs.IsReadbackRequestDone())
-                        {
-                            m_labelIDs = m_pullLabelIDs.ReadbackAndClone();
-                            m_isWaiting = false;
+                        m_labelIDs = m_pullLabelIDs.ReadbackAndClone();
+                        m_pullLabelIDs?.Dispose();
+                        m_isWaiting = false;
 
-                            if (m_labelIDs.shape[0] > 0)
-                            {
-                                Debug.Log("Sentis: m_labelIDs ready");
-                                m_download_state = 3;
-                            }
-                            else
-                            {
-                                Debug.LogError("Sentis: m_labelIDs empty");
-                                m_download_state = 4;
-                            }
+                        if (m_labelIDs.shape[0] > 0)
+                        {
+                            Debug.Log("Sentis: m_labelIDs ready");
+                            m_download_state = state.LABELID_READY;
+                        }
+                        else
+                        {
+                            Debug.LogError("Sentis: m_labelIDs empty");
+                            m_download_state = state.ERROR;
                         }
                     }
                     break;
-                case 3:
+                case state.LABELID_READY:
                     m_uiInference.DrawUIBoxes(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
                     m_tracker.UpdateTrackedObjects(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
-                    m_download_state = 5;
+                    m_download_state = state.FINISHED;
                     break;
-                case 4:
+                case state.ERROR:
                     m_uiInference.OnObjectDetectionError();
-                    m_download_state = 5;
+                    m_download_state = state.FINISHED;
                     break;
-                case 5:
-                    m_download_state++;
+                case state.FINISHED:
+                    m_download_state = state.WAITING;
                     m_started = false;
                     m_output?.Dispose();
                     m_labelIDs?.Dispose();
