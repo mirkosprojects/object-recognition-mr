@@ -1,9 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Meta.XR.Samples;
 using Unity.Sentis;
-using UnityEngine.Events;
-using UnityEngine.UI;
+using System.Linq;
 
 namespace PassthroughCameraSamples.MultiObjectDetection
 {
@@ -11,15 +9,17 @@ namespace PassthroughCameraSamples.MultiObjectDetection
     public class ObjectTrackerManager : MonoBehaviour
     {
         [Header("Tracking Settings")]
-        public float PositionThreshold = 0.3f;
-        public int MinFramesToConfirm = 3;
-        public int MaxFramesMissing = 60;
+        [SerializeField] private float PositionThreshold = 0.3f;
+        [SerializeField] private float mergeThreshold = 0.2f;
+        [SerializeField] private int MinFramesToConfirm = 3;
+        [SerializeField] private int MaxFramesMissing = 60;
+        
 
         private List<TrackedObject> trackedObjects = new();
 
         [Header("Marker Settings")]
-        public GameObject markerPrefab;
-        public Transform markerParent;
+        [SerializeField] private GameObject markerPrefab;
+        [SerializeField] private Transform markerParent;
 
         [Header("Placement configureation")]
         [SerializeField] private EnvironmentRayCastSampleManager m_environmentRaycast;
@@ -50,19 +50,19 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             return m_environmentRaycast.PlaceGameObjectByScreenPos(ray);
         }
 
-        private List<Detections> GetDetections(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
+        private List<Detection> GetDetections(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
         {
             var detectionsFound = output.shape[0];
             var maxDetections = Mathf.Min(detectionsFound, 200);
 
             //Get a list of bounding boxes
-            List<Detections> Detections = new(maxDetections);
+            List<Detection> Detections = new(maxDetections);
             for (var n = 0; n < maxDetections; n++)
             {
                 var worldPos = GetWorldPos(output[n, 0] / imageWidth, output[n, 1] / imageHeight);
 
                 // Create a new bounding box
-                var Detection = new Detections
+                var Detection = new Detection
                 {
                     ClassName = m_labels[labelIDs[n]].Replace(" ", "_"),
                     WorldPos = worldPos,
@@ -74,64 +74,103 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             return Detections;
         }
 
+        private void AddNewTrackedObject(Detection detection)
+        {
+            var newTracked = new TrackedObject(detection.ClassName, detection.WorldPos.Value, markerPrefab, markerParent);
+            trackedObjects.Add(newTracked);
+        }
+
+        private HashSet<int> GetDuplicateIDs()
+        {
+            HashSet<int> indicesToRemove = new HashSet<int>();
+            for (int i = 0; i < trackedObjects.Count; i++)
+            {
+                if (indicesToRemove.Contains(i)) continue;
+
+                for (int j = i + 1; j < trackedObjects.Count; j++)
+                {
+                    var primary = trackedObjects[i];
+                    var secondary = trackedObjects[j];
+
+                    if (indicesToRemove.Contains(j)) continue;
+                    if (primary.ClassName != secondary.ClassName) continue;
+
+                    if (Vector3.Distance(primary.WorldPos, secondary.WorldPos) < mergeThreshold)
+                    {
+                        if (primary.FramesSeen >= secondary.FramesSeen)
+                        {
+                            indicesToRemove.Add(j);
+                        }
+                        else
+                        {
+                            indicesToRemove.Add(i);
+                        }
+                    }
+                }
+            }
+            return indicesToRemove;
+        }
+
         public void UpdateTrackedObjects(Tensor<float> output, Tensor<int> labelIDs, float imageWidth, float imageHeight)
         {
             var detections = GetDetections(output, labelIDs, imageWidth, imageHeight);
-            // Keep track of which detections matched existing objects
-            HashSet<int> matchedDetections = new();
 
-            // Match new detections to existing tracked objects
+            HashSet<TrackedObject> matchedTrackedObjects = new HashSet<TrackedObject>();
+            HashSet<Detection> matchedDetections = new HashSet<Detection>();
+
+            // Match existing tracked objects with current detections
             foreach (var tracked in trackedObjects)
             {
-                bool matched = false;
-
-                for (int i = 0; i < detections.Count; i++)
+                foreach (var detection in detections)
                 {
-                    var detection = detections[i];
-                    if (matchedDetections.Contains(i)) continue;
-                    if (!detection.WorldPos.HasValue) continue;
-
                     if (IsMatching(tracked, detection))
                     {
                         tracked.Update(detection.WorldPos.Value);
-                        matchedDetections.Add(i);
-                        matched = true;
-                        break;
+                        matchedTrackedObjects.Add(tracked);
+                        matchedDetections.Add(detection);
                     }
                 }
+            }
 
-                if (!matched)
+            // Handle missed tracked objects
+            foreach (var tracked in trackedObjects)
+            {
+                if (!matchedTrackedObjects.Contains(tracked))
                 {
                     tracked.Miss();
                 }
             }
 
-            // Add new tracked objects for unmatched detections
-            for (int i = 0; i < detections.Count; i++)
+            // Handle new detections
+            foreach (var detection in detections)
             {
-                if (matchedDetections.Contains(i)) continue;
-
-                var detection = detections[i];
-                if (!detection.WorldPos.HasValue) continue;
-
-                var newObj = new TrackedObject(detection.ClassName, detection.WorldPos.Value, markerPrefab, markerParent);
-                trackedObjects.Add(newObj);
+                if (!matchedDetections.Contains(detection))
+                {
+                    AddNewTrackedObject(detection);
+                }
             }
 
             // Remove objects that haven't been seen for a while
             trackedObjects.RemoveAll(obj =>
             {
-                bool toRemove = (obj.FramesSeen < MinFramesToConfirm && obj.FramesSinceLastSeen > 5) ||
-                                obj.FramesSinceLastSeen > MaxFramesMissing;
+                bool toRemove = obj.FramesSinceLastSeen > MaxFramesMissing;
 
                 if (toRemove)
                     obj.DestroyMarker();
 
                 return toRemove;
             });
+
+            // Remove duplicates from trackedObjects
+            var indicesToRemove = GetDuplicateIDs();
+            foreach (int index in indicesToRemove.OrderByDescending(i => i))
+            {
+                trackedObjects[index].DestroyMarker();
+                trackedObjects.RemoveAt(index);
+            }
         }
 
-        private bool IsMatching(TrackedObject tracked, Detections detected)
+        private bool IsMatching(TrackedObject tracked, Detection detected)
         {
             if (tracked.ClassName != detected.ClassName) return false;
             float dist = Vector3.Distance(tracked.WorldPos, detected.WorldPos.Value);
@@ -143,7 +182,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             return trackedObjects;
         }
     }   
-    public struct Detections
+    public struct Detection
     {
         public Vector3? WorldPos;
         public string ClassName;
