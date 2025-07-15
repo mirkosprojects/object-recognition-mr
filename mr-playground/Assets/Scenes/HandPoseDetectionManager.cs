@@ -29,22 +29,14 @@ public class HandPoseDetectionManager : MonoBehaviour
     {
         Debug.Log($"Hand Position Detected at: {currentPose.position}");
 
-        // Instantiate a cube at the hand's position
-        if (cubePrefab != null)
-        {
-            Instantiate(cubePrefab, currentPose.position, Quaternion.identity);
-        }
-        else
-        {
-            Debug.LogWarning("Cube prefab is not assigned in the inspector.");
-        }
-
         foreach (var obj in tracker.GetTrackedObjects())
         {
             var distance = Vector3.Distance(currentPose.position, obj.WorldPos);
             if (distance < maxDistance)
             {
                 Debug.Log($"Tracked Object {obj.ClassName} at: {obj.WorldPos} matching with Hand at: {currentPose.position}");
+                Instantiate(cubePrefab, currentPose.position, Quaternion.identity);
+                return;
             }
         }
     }
