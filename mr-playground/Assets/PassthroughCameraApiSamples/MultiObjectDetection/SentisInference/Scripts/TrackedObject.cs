@@ -53,7 +53,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         public void DestroyMarker()
         {
             if (Marker != null)
+            {
                 GameObject.Destroy(Marker);
+            }
             Marker = null;
         }
 

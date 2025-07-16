@@ -156,7 +156,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 bool toRemove = obj.FramesSinceLastSeen > MaxFramesMissing;
 
                 if (toRemove)
+                {
                     obj.DestroyMarker();
+                } 
 
                 return toRemove;
             });

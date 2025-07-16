@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 public class WallObjectSpawner : MonoBehaviour
 {
-    [Tooltip("Reference your pre-configured AnchorPrefabSpawner")]
-    public AnchorPrefabSpawner spawner;
+    [SerializeField] private GameObject prefabToSpawn;
     [SerializeField] private float minWallWidth = 2f;
     [SerializeField] private float minWallHeight = 2f;
     private MRUKAnchor wallAnchor;
+    private GameObject currentObject;
 
     public void Start()
     {
@@ -25,7 +25,8 @@ public class WallObjectSpawner : MonoBehaviour
         wallAnchor = GetRandomWall(wallAnchors, minWallWidth, minWallHeight);
     }
 
-    private MRUKAnchor GetRandomWall(List<MRUKAnchor> anchors, float minWidth, float minHeight) {
+    private MRUKAnchor GetRandomWall(List<MRUKAnchor> anchors, float minWidth, float minHeight)
+    {
         List<MRUKAnchor> suitableAnchors = new();
 
         foreach (var anchor in anchors)
@@ -49,13 +50,34 @@ public class WallObjectSpawner : MonoBehaviour
         return suitableAnchors[index];
     }
 
-    public void spawnObject()
+    public void spawnObject(string ClassName)
     {
         if (wallAnchor == null)
         {
             Debug.LogError("No wall availale");
             return;
         }
-        spawner.SpawnPrefab(wallAnchor);
+        if (prefabToSpawn == null)
+        {
+            Debug.LogError("No prefab to spawn defined");
+            return;
+        }
+
+        // Spawn the portal
+        // TODO: Spawn different door backgrounds depending on the class
+        Vector3 wallBottom = new(wallAnchor.transform.position.x, 0, wallAnchor.transform.position.z);
+        currentObject = Instantiate(prefabToSpawn, wallBottom, wallAnchor.transform.rotation);
+        currentObject.transform.SetParent(wallAnchor.transform, true);
+
+        Debug.Log($"Spawned a portal for {ClassName}");
+    }
+
+    public void destroyCurrentObject()
+    {
+        if (currentObject != null)
+        {
+            Destroy(currentObject);
+            currentObject = null;
+        }
     }
 }
