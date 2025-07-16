@@ -5,8 +5,10 @@ using System.Collections.Generic;
 public class WallObjectSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject prefabToSpawn;
+    [SerializeField] private Texture[] classTextures;
     [SerializeField] private float minWallWidth = 2f;
     [SerializeField] private float minWallHeight = 2f;
+    private Dictionary<string, Texture> classTextureMap = new();
     private MRUKAnchor wallAnchor;
     private GameObject currentObject;
 
@@ -14,6 +16,12 @@ public class WallObjectSpawner : MonoBehaviour
     {
         // Call OnSceneLoaded function when MRUK is finished loading the scene
         MRUK.Instance.SceneLoadedEvent.AddListener(OnSceneLoaded);
+
+        // Match texture name to class name
+        foreach (var tex in classTextures)
+        {
+            classTextureMap[tex.name] = tex;
+        }
     }
 
     // Load a random suitable wall into wallAnchor
@@ -69,8 +77,22 @@ public class WallObjectSpawner : MonoBehaviour
         Quaternion doorRotation = wallAnchor.transform.rotation * Quaternion.Euler(0, 180, 0);  // Rotate door 180 degrees
         currentObject = Instantiate(prefabToSpawn, wallBottom, doorRotation);
         currentObject.transform.SetParent(wallAnchor.transform, true);
-
         Debug.Log($"Spawned a portal for {ClassName}");
+
+        // Apply background to the door depending on the class
+        Transform background = currentObject.transform.Find("Canvas/BackgroundImage");
+        if (background == null || !background.TryGetComponent<UnityEngine.UI.RawImage>(out var rawImage))
+        {
+            Debug.LogWarning("No BackgroundImage found on the spawned object");
+            return;
+        }
+        
+        if (!classTextureMap.TryGetValue(ClassName, out Texture texture))
+        {
+            Debug.LogWarning($"No texture found for class {ClassName}");
+            return;     
+        }
+        rawImage.texture = texture;
     }
 
     public void destroyCurrentObject()
