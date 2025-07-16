@@ -66,7 +66,8 @@ public class WallObjectSpawner : MonoBehaviour
         // Spawn the portal
         // TODO: Spawn different door backgrounds depending on the class
         Vector3 wallBottom = new(wallAnchor.transform.position.x, 0, wallAnchor.transform.position.z);
-        currentObject = Instantiate(prefabToSpawn, wallBottom, wallAnchor.transform.rotation);
+        Quaternion doorRotation = wallAnchor.transform.rotation * Quaternion.Euler(0, 180, 0);  // Rotate door 180 degrees
+        currentObject = Instantiate(prefabToSpawn, wallBottom, doorRotation);
         currentObject.transform.SetParent(wallAnchor.transform, true);
 
         Debug.Log($"Spawned a portal for {ClassName}");
