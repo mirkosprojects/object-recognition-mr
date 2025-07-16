@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 731917776111cfd4e8e238be7a676f44
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 280509
+  packageName: Free Wood Door Pack
+  packageVersion: 1.0
+  assetPath: Assets/Free Wood Door Pack/Script/Door.cs
+  uploadId: 658197
