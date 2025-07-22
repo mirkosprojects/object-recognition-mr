@@ -32,7 +32,7 @@ public class HandPoseDetectionManager : MonoBehaviour
         var currentTime = Time.time;
         if (currentTime - lastPoseTime > deleteAfterSeconds)
         {
-            spawner.destroyCurrentObject();
+            spawner.DestroyObject();
         }
     }
 
@@ -56,8 +56,8 @@ public class HandPoseDetectionManager : MonoBehaviour
             if (distance < maxDistance)
             {
                 Debug.Log($"Tracked Object {obj.ClassName} at: {obj.WorldPos} matching with Hand at: {pose.position}");
-                spawner.destroyCurrentObject();
-                spawner.spawnObject(obj.ClassName);
+                spawner.DestroyObject();
+                spawner.SpawnObject(obj.ClassName);
                 lastPoseTime = Time.time;
                 return;
             }

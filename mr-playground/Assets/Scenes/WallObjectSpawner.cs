@@ -14,9 +14,6 @@ public class WallObjectSpawner : MonoBehaviour
 
     public void Start()
     {
-        // Call OnSceneLoaded function when MRUK is finished loading the scene
-        MRUK.Instance.SceneLoadedEvent.AddListener(OnSceneLoaded);
-
         // Match texture name to class name
         foreach (var tex in classTextures)
         {
@@ -25,7 +22,7 @@ public class WallObjectSpawner : MonoBehaviour
     }
 
     // Load a random suitable wall into wallAnchor
-    private void OnSceneLoaded()
+    public void OnSceneLoaded()
     {
         var currentRoom = MRUK.Instance.GetCurrentRoom();
         var wallAnchors = currentRoom.WallAnchors;
@@ -58,7 +55,7 @@ public class WallObjectSpawner : MonoBehaviour
         return suitableAnchors[index];
     }
 
-    public void spawnObject(string ClassName)
+    public void SpawnObject(string ClassName)
     {
         if (wallAnchor == null)
         {
@@ -95,7 +92,7 @@ public class WallObjectSpawner : MonoBehaviour
         rawImage.texture = texture;
     }
 
-    public void destroyCurrentObject()
+    public void DestroyObject()
     {
         if (currentObject != null)
         {
