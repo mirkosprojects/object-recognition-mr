@@ -59,12 +59,12 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 IsInitialized = true;
                 InitializeMarker();
             }
-            UpdateMarker();
         }
 
         public void UpdateFrame()
         {
             FramesSinceLastSeen++;
+            UpdateMarker();
         }
         
         private void InitializeMarker()

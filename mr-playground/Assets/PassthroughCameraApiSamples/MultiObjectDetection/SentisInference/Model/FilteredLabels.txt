@@ -1,0 +1,16 @@
+bottle
+wine glass
+cup
+fork
+knife
+spoon
+bowl
+banana
+apple
+laptop
+mouse
+remote
+keyboard
+cell phone
+book
+vase

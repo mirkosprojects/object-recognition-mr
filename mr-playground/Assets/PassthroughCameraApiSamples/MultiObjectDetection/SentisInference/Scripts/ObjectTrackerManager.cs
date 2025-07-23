@@ -15,6 +15,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private int AverageFilterSize = 3;
 
         [SerializeField] private int MaxFramesMissing = 60;
+        [SerializeField] private TextAsset labelFilterAsset;
         
 
         private List<TrackedObject> trackedObjects = new();
@@ -30,12 +31,16 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private Vector2Int camRes;
 
         private string[] m_labels;
+        private string[] labelFilter;
 
         private void Start()
         {
             //Get the camera intrinsics
             var intrinsics = PassthroughCameraUtils.GetCameraIntrinsics(CameraEye);
             camRes = intrinsics.Resolution;
+
+            //Set the label filter
+            labelFilter = labelFilterAsset.text.Split('\n');
         }
 
         private void Update()
@@ -71,10 +76,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 var worldPos = GetWorldPos(output[n, 0] / imageWidth, output[n, 1] / imageHeight);
 
+                // Check if labelfilter contains label
+                var className = m_labels[labelIDs[n]];
+                if (!labelFilter.Contains(className)) continue;
+                
                 // Create a new bounding box
                 var Detection = new Detection
                 {
-                    ClassName = m_labels[labelIDs[n]].Replace(" ", "_"),
+                    ClassName = className,
                     WorldPos = worldPos,
                 };
 
