@@ -11,7 +11,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [Header("Tracking Settings")]
         [SerializeField] private float PositionThreshold = 0.3f;
         [SerializeField] private float mergeThreshold = 0.2f;
-        [SerializeField] private int MinFramesToConfirm = 3;
+        [SerializeField] private int MinDetectionsToConfirm = 3;
+        [SerializeField] private int AverageFilterSize = 3;
+
         [SerializeField] private int MaxFramesMissing = 60;
         
 
@@ -34,6 +36,14 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             //Get the camera intrinsics
             var intrinsics = PassthroughCameraUtils.GetCameraIntrinsics(CameraEye);
             camRes = intrinsics.Resolution;
+        }
+
+        private void Update()
+        {
+            foreach (var tracked in trackedObjects)
+            {
+                tracked.UpdateFrame();
+            }
         }
 
         public void SetLabels(TextAsset labelsAsset)
@@ -72,12 +82,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 Detections.Add(Detection);
             }
             return Detections;
-        }
-
-        private void AddNewTrackedObject(Detection detection)
-        {
-            var newTracked = new TrackedObject(detection.ClassName, detection.WorldPos.Value, markerPrefab, markerParent);
-            trackedObjects.Add(newTracked);
         }
 
         private HashSet<int> GetDuplicateIDs()
@@ -125,19 +129,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 {
                     if (IsMatching(tracked, detection))
                     {
-                        tracked.Update(detection.WorldPos.Value);
+                        tracked.UpdatePosition(detection.WorldPos.Value);
                         matchedTrackedObjects.Add(tracked);
                         matchedDetections.Add(detection);
                     }
-                }
-            }
-
-            // Handle missed tracked objects
-            foreach (var tracked in trackedObjects)
-            {
-                if (!matchedTrackedObjects.Contains(tracked))
-                {
-                    tracked.Miss();
                 }
             }
 
@@ -146,7 +141,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 if (!matchedDetections.Contains(detection))
                 {
-                    AddNewTrackedObject(detection);
+                    var newTracked = new TrackedObject(detection.ClassName, detection.WorldPos.Value, markerPrefab, markerParent, MinDetectionsToConfirm, AverageFilterSize);
+                    trackedObjects.Add(newTracked);
                 }
             }
 
@@ -181,7 +177,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         public List<TrackedObject> GetTrackedObjects()
         {
-            return trackedObjects;
+            return trackedObjects.Where(obj => obj.IsInitialized).ToList();
         }
     }   
     public struct Detection

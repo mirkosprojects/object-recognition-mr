@@ -17,7 +17,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         [SerializeField] private ModelAsset m_sentisModel;
         [SerializeField] private int m_layersPerFrame = 25;
         private float m_lastInferenceTime;
-        [SerializeField] private float m_inferenceInterval = 0.2f;
         [SerializeField] private TextAsset m_labelsAsset;
         public bool IsModelLoaded { get; private set; } = false;
 
