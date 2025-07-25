@@ -50,6 +50,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 tracked.UpdateFrame();
             }
+
+            RemoveOldObjects();
         }
 
         public void SetLabels(TextAsset labelsAsset)
@@ -77,6 +79,9 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 var worldPos = GetWorldPos(output[n, 0] / imageWidth, output[n, 1] / imageHeight);
 
+                // Don't add detection if no worldposition could be retrieved
+                if (!worldPos.HasValue) continue;
+
                 // Check if labelfilter contains label
                 var className = m_labels[labelIDs[n]];
                 if (!labelFilter.Contains(className)) continue;
@@ -92,6 +97,21 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 Detections.Add(Detection);
             }
             return Detections;
+        }
+
+        private void RemoveOldObjects(){
+            // Remove objects that haven't been seen for a while
+            trackedObjects.RemoveAll(obj =>
+            {
+                bool toRemove = obj.FramesSinceLastSeen > MaxFramesMissing;
+
+                if (toRemove)
+                {
+                    obj.DestroyMarker();
+                } 
+
+                return toRemove;
+            });
         }
 
         private HashSet<int> GetDuplicateIDs()
@@ -162,19 +182,6 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                     AverageFilterSize);
                 trackedObjects.Add(newTracked);
             }
-
-            // Remove objects that haven't been seen for a while
-            trackedObjects.RemoveAll(obj =>
-            {
-                bool toRemove = obj.FramesSinceLastSeen > MaxFramesMissing;
-
-                if (toRemove)
-                {
-                    obj.DestroyMarker();
-                } 
-
-                return toRemove;
-            });
 
             // Remove duplicates from trackedObjects
             var indicesToRemove = GetDuplicateIDs();
