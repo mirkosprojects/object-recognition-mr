@@ -16,13 +16,15 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private int AverageFilterSize;
         public GameObject Marker;
         private DetectionSpawnMarkerAnim MarkerAnim;
+        public bool VisualizeMarkers = false;
         public GameObject MarkerPrefab;
         public Transform MarkerParent;
 
-        public TrackedObject(string className, Vector3 worldPos, GameObject markerPrefab, Transform parent, int minDetectionsToConfirm, int averageFilterSize)
+        public TrackedObject(string className, Vector3 worldPos, bool visualizeMarkers, GameObject markerPrefab, Transform parent, int minDetectionsToConfirm, int averageFilterSize)
         {
             ClassName = className;
             WorldPos = worldPos;
+            VisualizeMarkers = visualizeMarkers;
             MarkerPrefab = markerPrefab;
             MarkerParent = parent;
             MinDetectionsToConfirm = minDetectionsToConfirm;
@@ -69,13 +71,15 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         
         private void InitializeMarker()
         {
+            if (!VisualizeMarkers) return;
+            if (MarkerPrefab == null || MarkerParent == null) return;
+
             Marker = GameObject.Instantiate(MarkerPrefab, WorldPos, Quaternion.identity, MarkerParent);
-            MarkerAnim = Marker.GetComponent<DetectionSpawnMarkerAnim>();
-            if (MarkerAnim != null)
-            {
-                MarkerAnim.SetYoloClassName(ClassName);
-            }
             Marker.SetActive(true);
+
+            MarkerAnim = Marker.GetComponent<DetectionSpawnMarkerAnim>();
+            if (MarkerAnim == null) return;
+            MarkerAnim.SetYoloClassName(ClassName);
         }
 
         public void DestroyMarker()

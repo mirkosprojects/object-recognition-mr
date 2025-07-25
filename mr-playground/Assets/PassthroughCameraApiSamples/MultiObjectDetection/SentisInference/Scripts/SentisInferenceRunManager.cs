@@ -62,8 +62,16 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             // Wait for the UI to be ready because when Sentis load the model it will block the main thread.
             yield return new WaitForSeconds(0.05f);
 
-            m_uiInference.SetLabels(m_labelsAsset);
-            m_tracker.SetLabels(m_labelsAsset);
+            if (m_uiInference != null && m_uiInference.enabled)
+            {
+                m_uiInference.SetLabels(m_labelsAsset);
+            }
+
+            if (m_tracker != null && m_tracker.enabled == true)
+            {
+                m_tracker.SetLabels(m_labelsAsset);
+            }
+
             LoadModel();
         }
 
@@ -93,7 +101,10 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             if (!targetTexture) return;
 
             // Update Capture data
-            m_uiInference.SetDetectionCapture(targetTexture);
+            if (m_uiInference != null && m_uiInference.enabled)
+            {
+                m_uiInference.SetDetectionCapture(targetTexture);
+            }
 
             // clean last input
             m_input?.Dispose();
@@ -154,6 +165,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             catch (Exception e)
             {
                 Debug.LogError($"Sentis error: {e.Message}");
+                Debug.LogError(e);
             }
         }
 
@@ -230,47 +242,43 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             {
                 case state.INFERENCE_DONE:
                     PollRequestOuput();
-                    Debug.Log($"Sentis Times; Output polled: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
                     break;
                 case state.OUTPUT_POLLED:
                     if (!m_pullOutput.IsReadbackRequestDone()) break;
                     ReadBackOutput();
-                    Debug.Log($"Sentis Times; Output read back: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
                     break;
                 case state.OUTPUT_READY:
                     PollRequestLabelIDs();
-                    Debug.Log($"Sentis Times; LabelIDs Polled: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
                     break;
                 case state.LABELID_POLLED:
                     if (!m_pullLabelIDs.IsReadbackRequestDone()) break;
                     ReadBackLabelID();
-                    Debug.Log($"Sentis Times; LabelIDs read back: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
                     break;
                 case state.LABELID_READY:
-                    m_uiInference.DrawUIBoxes(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
-                    Debug.Log($"Sentis Times; Boxes drawn: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
-                    m_tracker.UpdateTrackedObjects(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
+                    if (m_uiInference != null && m_uiInference.enabled)
+                    {
+                        m_uiInference.DrawUIBoxes(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
+                    }
+                    if (m_tracker != null && m_tracker.enabled == true)
+                    {
+                        m_tracker.UpdateTrackedObjects(m_output, m_labelIDs, m_inputSize.x, m_inputSize.y);
+                        
+                    }
                     m_download_state = state.FINISHED;
-                    Debug.Log($"Sentis Times; Objects updated: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
                     break;
                 case state.ERROR:
-                    m_uiInference.OnObjectDetectionError();
+                    if (m_uiInference != null && m_uiInference.enabled)
+                    {
+                        m_uiInference.OnObjectDetectionError();
+                    }
                     m_download_state = state.FINISHED;
-                    Debug.Log($"Sentis Times; Error: {Time.time - m_lastInferenceTime}");
-                    m_lastInferenceTime = Time.time;
                     break;
                 case state.FINISHED:
                     m_download_state = state.WAITING;
                     m_started = false;
                     m_output?.Dispose();
                     m_labelIDs?.Dispose();
-                    Debug.Log($"Sentis Times; Inference finished: {Time.time - m_lastInferenceTime}");
+                    Debug.Log($"Sentis: total run time: {Time.time - m_lastInferenceTime}s");
                     m_lastInferenceTime = Time.time;
                     break;
             }

@@ -21,6 +21,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private List<TrackedObject> trackedObjects = new();
 
         [Header("Marker Settings")]
+        public bool visualizeMarkers = false;
         [SerializeField] private GameObject markerPrefab;
         [SerializeField] private Transform markerParent;
 
@@ -79,7 +80,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
                 // Check if labelfilter contains label
                 var className = m_labels[labelIDs[n]];
                 if (!labelFilter.Contains(className)) continue;
-                
+
                 // Create a new bounding box
                 var Detection = new Detection
                 {
@@ -95,7 +96,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
 
         private HashSet<int> GetDuplicateIDs()
         {
-            HashSet<int> indicesToRemove = new HashSet<int>();
+            HashSet<int> indicesToRemove = new();
             for (int i = 0; i < trackedObjects.Count; i++)
             {
                 if (indicesToRemove.Contains(i)) continue;
@@ -128,8 +129,8 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         {
             var detections = GetDetections(output, labelIDs, imageWidth, imageHeight);
 
-            HashSet<TrackedObject> matchedTrackedObjects = new HashSet<TrackedObject>();
-            HashSet<Detection> matchedDetections = new HashSet<Detection>();
+            HashSet<TrackedObject> matchedTrackedObjects = new();
+            HashSet<Detection> matchedDetections = new();
 
             // Match existing tracked objects with current detections
             foreach (var tracked in trackedObjects)
@@ -148,11 +149,18 @@ namespace PassthroughCameraSamples.MultiObjectDetection
             // Handle new detections
             foreach (var detection in detections)
             {
-                if (!matchedDetections.Contains(detection))
-                {
-                    var newTracked = new TrackedObject(detection.ClassName, detection.WorldPos.Value, markerPrefab, markerParent, MinDetectionsToConfirm, AverageFilterSize);
-                    trackedObjects.Add(newTracked);
-                }
+                if (!detection.WorldPos.HasValue) continue;
+                if (matchedDetections.Contains(detection)) continue;
+                
+                var newTracked = new TrackedObject(
+                    detection.ClassName,
+                    detection.WorldPos.Value,
+                    visualizeMarkers,
+                    markerPrefab,
+                    markerParent,
+                    MinDetectionsToConfirm,
+                    AverageFilterSize);
+                trackedObjects.Add(newTracked);
             }
 
             // Remove objects that haven't been seen for a while
@@ -180,6 +188,7 @@ namespace PassthroughCameraSamples.MultiObjectDetection
         private bool IsMatching(TrackedObject tracked, Detection detected)
         {
             if (tracked.ClassName != detected.ClassName) return false;
+            if (!detected.WorldPos.HasValue) return false;
             float dist = Vector3.Distance(tracked.WorldPos, detected.WorldPos.Value);
             return dist < PositionThreshold;
         }
