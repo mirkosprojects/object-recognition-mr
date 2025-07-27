@@ -1,2 +1,0 @@
-C:\Users\dtref\Documents\Code\MR\object-recognition\mr-playground\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
-C:\Users\dtref\Documents\Code\MR\object-recognition\mr-playground\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\GameActivity\CMakeLists.txt
