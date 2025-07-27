@@ -10,7 +10,7 @@ When the user grabs an object, a door is spawned based on the type of object the
   ```
 - Clone the repository:
   ```sh
-  git clone XXX
+  git clone https://github.com/mirkosprojects/object-recognition-mr.git
   ```
 
 ## Usage
@@ -21,7 +21,10 @@ When the user grabs an object, a door is spawned based on the type of object the
 
 ## Building from Source
 - Open the Unity Project
-- Go to `File > Build Profiles > New Android Profile`and click `Build`
+- Go to `File > Build Profiles > New Android Profile`
+- Click `Switch Profile`
+- Click `Build`
+- If prompted to select Input Handling, select `Both`
 - Install the APK onto your Meta Quest 3
 
 ## Visualization
