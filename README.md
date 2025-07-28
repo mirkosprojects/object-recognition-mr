@@ -27,7 +27,7 @@ When the user grabs an object, a door is spawned based on the type of object the
 - Go to `File > Build Profiles > New Android Profile`
 - Click `Switch Profile`
 - Click `Build`
-- If prompted to select Input Handling, select `Both`
+- If prompted with the warning `Unsupported Input Handling`, select `Yes`
 - Install the APK onto your Meta Quest 3
 
 ## Visualization
