@@ -7,7 +7,7 @@ When the user grabs an object, a door is spawned based on the type of object the
 ## Usage
 - Download the APK from [Releases](https://github.com/mirkosprojects/object-recognition-mr/releases/latest)
 - Install the APK onto your Meta Quest 3
-- Make sure you activate the necessary permissions (**TODO**)
+- Make sure you activate the necessary permissions
 - Make sure you have completed the environment setup for your room `(Settings > Environment Setup > Set Up)`
 - Launch the App `(Library > Unknown Sources > Object Recognition in MR)`
 
